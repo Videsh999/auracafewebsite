@@ -71,7 +71,6 @@ app.use('/api/tables',       tableRoutes);
 app.use('/api/analytics',    analyticsRoutes);
 
 
-
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -80,26 +79,28 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname,"../frontend/dist")));
 
-app.get("*",(req,res)=>{
+// frontend only
+app.get(/^\/(?!api).*/, (req,res)=>{
  res.sendFile(
    path.join(__dirname,"../frontend/dist/index.html")
  );
 });
+
 // 404 catch-all
-app.use((req, res) =>
-  res.status(404).json({
-    message:'Route not found'
-  })
- );
- 
- // Global error handler
- app.use((err,req,res,next)=>{
-  console.error('🔴 Unhandled error:',err.message);
- 
-  res.status(500).json({
-    message:err.message || 'Internal server error'
-  });
+app.use((req,res)=>{
+ res.status(404).json({
+   message:'Route not found'
  });
+});
+
+// Global error handler
+app.use((err,req,res,next)=>{
+ console.error('🔴 Unhandled error:',err.message);
+
+ res.status(500).json({
+   message:err.message || 'Internal server error'
+ });
+});
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 app.set('io', io);
 
